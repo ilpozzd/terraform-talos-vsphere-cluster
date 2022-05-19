@@ -241,7 +241,7 @@ Virtual machine:
 | Name | Version |
 |---|---|
 | [ilpozzd/terraform-talos-secrets](https://github.com/ilpozzd/terraform-talos-secrets) | latest |
-| [ilpozzd/terraform-vsphere-talos-vm](https://github.com/ilpozzd/terraform-talos-vsphere-vm) | latest |
+| [ilpozzd/terraform-talos-vsphere--vm](https://github.com/ilpozzd/terraform-talos-vsphere-vm) | latest |
 
 ## Resources
 
