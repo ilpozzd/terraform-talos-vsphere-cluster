@@ -255,7 +255,7 @@ Virtual machine:
 | Name | Description | Type | Default | Required |
 |---|---|---|---|---|
 | datacenter | VMware datacenter name. | `string` | `-` | Yes |
-| datastores | VMWare datastore(s) where all virtual machine`s data will be placed in. | `list(string)` | `-` | Yes |
+| datastores | VMWare datastore(s) where all virtual machine's data will be placed in. | `list(string)` | `-` | Yes |
 | hosts | ESXi host(s) where target virtual machine will be created. | `list(string)` | `-` | Yes |
 | resource_pool | VMWare resource pool where target virtual machine will be created. | `string` | `-` | Yes |
 | folder | Folder to create the virtual machine in. | `string` | `-` | Yes |
