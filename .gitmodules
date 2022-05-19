@@ -1,0 +1,6 @@
+[submodule "modules/terraform-talos-secrets"]
+	path = modules/terraform-talos-secrets
+	url = https://github.com/ilpozzd/terraform-talos-secrets
+[submodule "modules/terraform-talos-vsphere-vm"]
+	path = modules/terraform-talos-vsphere-vm
+	url = https://github.com/ilpozzd/terraform-talos-vsphere-vm
