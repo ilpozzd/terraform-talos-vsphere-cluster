@@ -17,12 +17,15 @@ terraform {
 }
 
 module "secrets" {
-  source                = "./modules/terraform-talos-secrets"
+  source  = "ilpozzd/secrets/talos"
+  version = "1.0.0"
+
   validity_period_hours = var.validity_period_hours
 }
 
 module "control_plane_vm" {
-  source = "./modules/terraform-talos-vsphere-vm"
+  source  = "ilpozzd/vsphere-vm/talos"
+  version = "1.1.0"
 
   datacenter     = var.datacenter
   datastores     = var.datastores
@@ -67,7 +70,8 @@ module "control_plane_vm" {
 }
 
 module "worker_vm" {
-  source = "./modules/terraform-talos-vsphere-vm"
+  source  = "ilpozzd/vsphere-vm/talos"
+  version = "1.1.0"
 
   datacenter     = var.datacenter
   datastores     = reverse(var.datastores)
