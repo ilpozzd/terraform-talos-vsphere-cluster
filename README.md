@@ -1,5 +1,7 @@
 # Talos OS vSphere Cluster Terraform Module
 
+Page in [Terraform Registry](https://registry.terraform.io/modules/ilpozzd/vsphere-cluster/talos/latest)
+
 This module allows you to deploy a Kubernetes cluster based on Talos OS in the vSphere infrastructure.
 The configuration of the virtual machines fully corresponds to the configuration of [Talos OS v1.0.x](https://www.talos.dev/v1.0/).
 
@@ -7,7 +9,8 @@ The configuration of the virtual machines fully corresponds to the configuration
 
 ```hcl
 module "kubernetes-cluster" {
-  source = "github.com/ilpozzd/terraform-talos-vsphere-cluster"
+  source  = "ilpozzd/vsphere-cluster/talos"
+  version = "1.1.0"
 
   datacenter = "Company_Datacenter"
   datastores = [
@@ -172,9 +175,9 @@ module "kubernetes-cluster" {
 | Name | Version |
 |---|---|
 | terraform | >= 1.1.9, < 2.0.0 |
-| [hashicorp/vsphere](https://registry.terraform.io/providers/hashicorp/vsphere) | 2.1.1 |
+| [hashicorp/vsphere](https://registry.terraform.io/providers/hashicorp/vsphere/2.1.1) | 2.1.1 |
 
-**vSphere Version** >= `6.7u3`
+### vSphere Version >= `6.7u3`
 
 ### Required `Terraform Role` permissions in **vSphere**
 
@@ -220,93 +223,98 @@ Virtual machine:
 
 ### Required objects to apply `roles`
 
-* vCenter -> `Terraform Role` -> This Object
-* Datacenter -> `Read-only Role` -> This object
-* Datastore Cluster -> `Terraform Role` -> This object and it`s children
-* Hosts Cluster -> `Read-only Role` -> This object
-* Hosts -> `Terraform Role` -> This Object
-* DPG -> `Terraform Role` -> This object
-* Folder -> `Terraform Role` -> This object and it`s children
-* Resource pool -> `Terraform Role` -> This object and it`s children
+| Object | Role | Defined in |
+|---|---|---|
+| vCenter | `Terraform Role` | This object |
+| Datacenter | `Read-only Role` | This object |
+| Datastore Cluster | `Terraform Role` | This object and it's children |
+| Hosts Cluster | `Read-only Role` | This object |
+| Hosts | `Terraform Role` | This object |
+| DPG | `Terraform Role` | This object |
+| Folder | `Terraform Role` | This object and it's children |
+| Resource pool | `Terraform Role` | This object and it's children |
 
 ## Providers
 
 | Name | Version |
 |---|---|
-| [hashicorp/vsphere](https://registry.terraform.io/providers/hashicorp/vsphere) | 2.1.1 |
-| [hashicorp/local](https://registry.terraform.io/providers/hashicorp/local) | 2.2.3 |
+| [hashicorp/vsphere](https://registry.terraform.io/providers/hashicorp/vsphere/2.1.1) | 2.1.1 |
+| [hashicorp/local](https://registry.terraform.io/providers/hashicorp/local/2.2.3) | 2.2.3 |
 
 ## Modules
 
 | Name | Version |
 |---|---|
-| [ilpozzd/terraform-talos-secrets](https://github.com/ilpozzd/terraform-talos-secrets) | latest |
-| [ilpozzd/terraform-talos-vsphere--vm](https://github.com/ilpozzd/terraform-talos-vsphere-vm) | latest |
+| [ilpozzd/secrets/talos](https://registry.terraform.io/modules/ilpozzd/secrets/talos/1.0.0) | 1.0.0 |
+| [ilpozzd/vsphere-vm/talos](https://registry.terraform.io/modules/ilpozzd/vsphere-vm/talos/1.1.0) | 1.1.0 |
 
 ## Resources
 
 | Name | Type |
 |---|---|
-| [local_file.kubeconfig](https://registry.terraform.io/providers/hashicorp/local/latest/docs/resources/file) | resource |
-| [local_file.talosconfig](https://registry.terraform.io/providers/hashicorp/local/latest/docs/resources/file) | resource |
+| [local_file.kubeconfig](https://registry.terraform.io/providers/hashicorp/local/2.2.3/docs/resources/file) | resource |
+| [local_file.talosconfig](https://registry.terraform.io/providers/hashicorp/local/2.2.3/docs/resources/file) | resource |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |---|---|---|---|---|
 | datacenter | VMware datacenter name. | `string` | `-` | Yes |
-| datastores | VMWare datastore(s) where all virtual machine's data will be placed in. | `list(string)` | `-` | Yes |
-| hosts | ESXi host(s) where target virtual machine will be created. | `list(string)` | `-` | Yes |
-| resource_pool | VMWare resource pool where target virtual machine will be created. | `string` | `-` | Yes |
-| folder | Folder to create the virtual machine in. | `string` | `-` | Yes |
-| remote_ovf_url | URL to the remote Talos OS ovf/ova file. | `string` | `-` | Yes |
-| <a name="control-plane-count-cell"></a> control_plane_count | Number of control plane virtual machines.| `number` | `2` | No |
-| <a name="worker-count-cell"></a> worker_count | Number of worker virtual machines.| `number` | `0` | No |
-| control_plane_num_cpus | The total number of virtual processor cores to assign to control plane virtual machines. | `number` | `2` | No |
-| worker_num_cpus | The total number of virtual processor cores to assign to worker virtual machines. | `number` | `4` | No |
-| control_plane_memory | The size of control plane virtual machines RAM, in Mb. | `number` | `2048` | No |
-| worker_memory | The size of worker virtual machines RAM, in Mb. | `number` | `4096` | No |
-| control_plane_disks | A specification list for a virtual disk devices on control plane virtual machines. | [`list`](#disks-input) | `-` | Yes |
-| worker_disks | A specification list for a virtual disk devices on worker virtual machines. | [`list`](#disks-input) | `[]` | No |
-| control_plane_network_interfaces | A specification list for a virtual NIC on control plane virtual machines.| [`list`](#network-interfaces-input) | `-` | Yes |
-| worker_network_interfaces | A specification list for a virtual NIC on worker virtual machines.| [`list`](#network-interfaces-input) | `[]` | No |
-| talos_base_configuration | Talos high-level configuration. | [`object`](#talos-base-configuration-input) | [`object`](#talos-base-configuration-input) | No |
-| machine_secrets | Secret data used to create Talos stack. | [`object`](#machine-secrets-input) | `-` | Yes |
-| talos_admin_pki | Base64 encoded certificate (signed by [machine_secrets.ca.crt](#machine-secrets-input) and key (in ED25519) to provide access to virtual machine trought `talosctl`. | [`object`](#talos-admin-pki-input) | `{}` | [Yes](#talos-admin-pki-input) |
-| machine_base_configuration | Machine configuration used in all nodes. | [`object`](#machine-base-configuration-input) | `-` | Yes |
-| control_plane_machine_extra_configuration | Optional control plane machine extra configuration. | [`object`](#machine-extra-configuration-input) | `{}` | No |
-| worker_machine_extra_configuration | Optional worker machine extra configuration. | [`object`](#machine-extra-configuration-input) | `{}` | No |
-| control_plane_machine_cert_sans | A list of certSANs for [control_plane_count](#control-plane-count-cell) control planes (optional). | `list(list(string))` | `[]` | No |
-| worker_machine_cert_sans | A list of certSANs for [worker_count](#worker-count-cell) workers (optional). | `list(list(string))` | `[]` | No |
-| machine_network | Network configuration used in all nodes. | [`object`](#machine-network-input) | `{}` | No |
-| <a name="control-plane-machine-network-hostnames-cell"></a> control_plane_machine_network_hostnames | A list of hostnames for [control_plane_count](#control-plane-count-cell) control planes (if not set will be generated automaticly). | `list(string)` | `[]` | No |
-| <a name="worker-machine-network-hostnames-cell"></a> worker_machine_network_hostnames | A list of hostnames for [worker_count](#worker-count-cell) workers (if not set will be generated automaticly). | `list(string)` | `[]` | No |
-| <a name="control-plane-machine-network-interfaces-cell"></a> control_plane_machine_network_interfaces | A list of network interfaces for [control_plane_count](#control-plane-count-cell) control planes (if not set DHCP will be used). Not less than one element with one static IP address required. | [`list`](#machine-network-interfaces-input) | `[]` | Yes |
-| <a name="worker-machine-network-interfaces-cell"></a> worker_machine_network_interfaces | A list of network interfaces for [worker_count](#worker-count-cell) workers (if not set DHCP will be used). | [`list`](#machine-network-interfaces-input) | `[]` | No |
-| cluster_secrets | Secret data used in all Kubernetes nodes. | [`object`](#cluster-secrets-input) | `-` | Yes |
-| control_plane_cluster_secrets | Secret data used in Kubernetes control plane nodes. | [`object`](#control-plane-cluster-secrets-input) | `{}` | [Yes](#control-plane-cluster-secrets-input) |
+| datastores | VMWare datastore(s) where all data for the virtual machine will be placed in. | `list(string)` | `-` | Yes |
+| hosts | ESXi host(s) where the virtual machine will be created. | `list(string)` | `-` | Yes |
+| resource_pool | VMWare resource pool where the virtual machine will be created. | `string` | `-` | Yes |
+| folder | Folder to create the virtual machines in. | `string` | `-` | Yes |
+| remote_ovf_url | URL to the remote [Talos OS 1.0.x](https://github.com/siderolabs/talos/releases) ovf/ova file. | `string` | `-` | Yes |
+| <a name="control-plane-count-cell"></a> control_plane_count | Number of 'controlplane' virtual machines.| `number` | `2` | No |
+| <a name="worker-count-cell"></a> worker_count | Number of 'worker' virtual machines.| `number` | `0` | No |
+| control_plane_num_cpus | The total number of virtual processor cores to assign to 'controlplane' virtual machines. | `number` | `2` | No |
+| worker_num_cpus | The total number of virtual processor cores to assign to 'worker' virtual machines. | `number` | `4` | No |
+| control_plane_memory | The amount of RAM for 'controlplane' virtual machines, in Mb. | `number` | `2048` | No |
+| worker_memory | The amount of RAM for 'worker' virtual machines, in Mb. | `number` | `4096` | No |
+| control_plane_disks | A specification list for a virtual disk devices on 'controlplane' virtual machines. Use only first disk to Talos installation in 'machine_base_configuration'. block | [`list`](#disks-input) | `-` | Yes |
+| worker_disks | "A specification list for a virtual disk devices on 'worker' virtual machines. Use only first disk to Talos installation in 'machine_base_configuration' block. | [`list`](#disks-input) | `[]` | No |
+| control_plane_network_interfaces | A specification list for a virtual NIC on 'controlplane' virtual machines. | [`list`](#network-interfaces-input) | `-` | Yes |
+| worker_network_interfaces | A specification list for a virtual NIC on 'worker' virtual machines. | [`list`](#network-interfaces-input) | `[]` | No |
+| talos_base_configuration | Talos OS top-level configuration. | [`object`](#talos-base-configuration-input) | [`object`](#talos-base-configuration-input) | No |
+| machine_secrets | Secret data that is used to create trust relationships between virtual machines. | [`object`](#machine-secrets-input) | `-` | [No](#machine-secrets-input) |
+| talos_admin_pki | Base64 encoded certificate (signed by [machine_secrets.ca.crt](#machine-secrets-input) and key (in ED25519) to provide access to virtual machine trought `talosctl`. | [`object`](#talos-admin-pki-input) | `{}` | [No](#talos-admin-pki-input) |
+| machine_base_configuration | Basic configuration of all virtual machines. | [`object`](#machine-base-configuration-input) | `-` | Yes |
+| control_plane_machine_extra_configuration | Extended configuration of 'controlplane' virtual machine. | [`object`](#machine-extra-configuration-input) | `{}` | No |
+| worker_machine_extra_configuration | Extended configuration of 'worker' virtual machines. | [`object`](#machine-extra-configuration-input) | `{}` | No |
+| control_plane_machine_cert_sans | A list of alternative names for [control_plane_count](#control-plane-count-cell) control planes (optional). | `list(list(string))` | `[]` | No |
+| worker_machine_cert_sans | A list of alternative names for [worker_count](#worker-count-cell) workers (optional). | `list(list(string))` | `[]` | No |
+| machine_network | General network configuration of the virtual machine. 'hostname' and 'interfaces' parameters are described in separate inputs. | [`object`](#machine-network-input) | `{}` | No |
+| <a name="control-plane-machine-network-hostnames-cell"></a> control_plane_machine_network_hostnames | A list of hostnames for [control_plane_count](#control-plane-count-cell) of 'controlplane' virtual machines (if not set will be generated automatically). | `list(string)` | `[]` | No |
+| <a name="worker-machine-network-hostnames-cell"></a> worker_machine_network_hostnames | A list of hostnames for [worker_count](#worker-count-cell) of 'worker' virtual machines (if not set will be generated automatically). | `list(string)` | `[]` | No |
+| <a name="control-plane-machine-network-interfaces-cell"></a> control_plane_machine_network_interfaces | A list of network interfaces for [control_plane_count](#control-plane-count-cell) of 'controlplane' virtual machines (if not set DHCP will be used). Not less than one element with one static IP address required. | [`list`](#machine-network-interfaces-input) | `[]` | Yes |
+| <a name="worker-machine-network-interfaces-cell"></a> worker_machine_network_interfaces | A list of network interfaces for [worker_count](#worker-count-cell) of 'worker' virtual machines (if not set DHCP will be used). | [`list`](#machine-network-interfaces-input) | `[]` | No |
+| cluster_secrets | Secret data that is used to establish trust relationships between Kubernetes cluster nodes. | [`object`](#cluster-secrets-input) | `-` | [No](#cluster-secrets-input) |
+| control_plane_cluster_secrets | Secret data required to establish trust relationships between components used by 'controlplane' nodes in the Kubernetes cluster. | [`object`](#control-plane-cluster-secrets-input) | `{}` | [No](#control-plane-cluster-secrets-input) |
 | cluster_name | The name of the cluster. | `string` | `-` | Yes |
-| cluster_control_plane | Provides control plane specific configuration options. | [`object`](#cluster-control-plane-input) | `-` | [No](#cluster-control-plane-input) |
-| cluster_discovery | Configures cluster member discovery. | [`object`](#cluster-discovery-input) | [`object`](#cluster-discovery-input) | No |
-| control_plane_cluster_configuration | Cluster configuration used in Kubernetes control plane nodes. | [`object`](#control-plane-cluster-configuration-input) | `{}` | No |
-| cluster_inline_manifests | A list of inline Kubernetes manifests. | [`list`](#cluster-inline-manifests-input) | `[]` | No |
-| cluster_extra_manifests | A list of urls that point to additional manifests. These will get automatically deployed as part of the bootstrap. | `list(string)` | `[]` | No |
-| cluster_extra_manifest_headers | A map of key value pairs that will be added while fetching the extraManifests. | `map(string)` | `{}` | No |
-| validity_period_hours | The number of hours after initial issuing that all generated certificates become invalid. | `number` | `8760` | No |
-| kubeconfig_path | Path to save kubeconfig file (include filename; if not set config will not be created). | `string` | `""` | No |
-| talosconfig_path | Path to save talosconfig file (include filename; if not set config will not be created). | `string` | `""` | No |
+| cluster_control_plane | Data to define the API endpoint address for joining a node to the Kubernetes cluster. | [`object`](#cluster-control-plane-input) | `-` | [Yes/No](#cluster-control-plane-input) |
+| cluster_discovery | Data that sets up the discovery of nodes in the Kubernetes cluster. | [`object`](#cluster-discovery-input) | [`object`](#cluster-discovery-input) | No |
+| control_plane_cluster_configuration | Data that configure the components of the 'controlplane' nodes in the Kubernetes cluster. | [`object`](#control-plane-cluster-configuration-input) | `{}` | No |
+| cluster_inline_manifests |A list of Kuberenetes manifests whose content is represented as a string. These will get automatically deployed as part of the bootstrap. | [`list`](#cluster-inline-manifests-input) | `[]` | No |
+| cluster_extra_manifests | A list of `URLs` that point to additional manifests. These will get automatically deployed as part of the bootstrap. | `list(string)` | `[]` | No |
+| cluster_extra_manifest_headers | A map of key value pairs that will be added while fetching the `cluster_extra_manifests`. | `map(string)` | `{}` | No |
+| validity_period_hours | The number of hours after initial issuing that **ALL** generated certificates become invalid. | `number` | `8760` | No |
+| kubeconfig_path | Path to save kubeconfig file (Include filename. If not set config will not be created). | `string` | `""` | No |
+| talosconfig_path | Path to save talosconfig file (Include filename. If not set config will not be created). | `string` | `""` | No |
 | vmtoolsd_extra_manifest | A link to talos-vmtoolsd Kubernetes manifest. | `string` | [`Link`](https://raw.githubusercontent.com/mologie/talos-vmtoolsd/release-0.3/deploy/0.3.yaml) | No |
 
 ### Disks Input
 
 ```hcl
 list(object({
-  label = string
-  size  = number
+  label            = string
+  size             = number
+  eagerly_scrub    = optional(bool)
+  thin_provisioned = optional(bool)
 }))
 ```
-* label - Any name for disk (label for Terraform)
-* size - Capacity in **Gb**
+* `label` - Any name for disk (label for Terraform)
+* `size` - Capacity in **Gb**
+* `eagerly_scrub` and `thin_provisioned` - See [vSphere Provider Documentation](https://registry.terraform.io/providers/hashicorp/vsphere/latest/docs/resources/virtual_machine#disk-options)
 
 ### Network Interfaces Input
 
@@ -315,7 +323,7 @@ list(object({
   name = string
 }))
 ```
-* name - Distributed Port Group (DPG) name
+* `name` - Distributed Port Group (DPG) name
 
 ### Talos Base Configuration Input
 
@@ -351,6 +359,8 @@ object({
 
 See [MachineConfig](https://www.talos.dev/v1.0/reference/configuration/#machineconfig) section in Talos Configuration Reference for detail description.
 
+By default generated by [ilpozzd/secrets/talos](https://registry.terraform.io/modules/ilpozzd/secrets/talos/1.0.0). You can provide your own. If you provide this secrets you also must provide [talos_admin_pki](#talos-admin-pki)
+
 ### Talos Admin PKI Input
 
 ```hcl
@@ -359,10 +369,10 @@ object({
   key = optional(string)
 })
 ```
-* crt - Base64 encoded certificate in PEM format
-* key - Base64 encoded key in PEM format
-  
-Required if [machine_type](#machine-type-cell) = `controlplane` and [create_init_node](#create-init-node-cell) = `true`
+* `crt` - Base64 encoded certificate in **PEM** format
+* `key` - Base64 encoded key in **PEM** format
+
+By default generated by [ilpozzd/secrets/talos](https://registry.terraform.io/modules/ilpozzd/secrets/talos/1.0.0).
 
 ### Machine Base Configuration 
 
@@ -591,6 +601,8 @@ object({
 ```
 See [ClusterConfig](https://www.talos.dev/v1.0/reference/configuration/#clusterconfig) section in Talos Configuration Reference for detail description. 
 
+By default generated by [ilpozzd/secrets/talos](https://registry.terraform.io/modules/ilpozzd/secrets/talos/1.0.0). You can provide your own.
+
 ### Control Plane Cluster Secrets Input
 
 ```hcl
@@ -614,6 +626,8 @@ object({
 
 See [ClusterConfig](https://www.talos.dev/v1.0/reference/configuration/#clusterconfig) section in Talos Configuration Reference for detail description.
 
+By default generated by [ilpozzd/secrets/talos](https://registry.terraform.io/modules/ilpozzd/secrets/talos/1.0.0). You can provide your own.
+
 ### Cluster Control Plane Input
 
 ```hcl
@@ -625,7 +639,7 @@ object({
 
 See [ControlPlaneConfig](https://www.talos.dev/v1.0/reference/configuration/#controlplaneconfig) section in Talos Configuration Reference for detail description. 
 
-Required if `init node` is outside of this cluster.
+Required if `init` node is outside of this cluster.
 
 ### Cluster Discovery Input
 
