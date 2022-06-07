@@ -25,7 +25,7 @@ module "secrets" {
 
 module "control_plane_vm" {
   source  = "ilpozzd/vsphere-vm/talos"
-  version = "1.1.1"
+  version = "1.1.2"
 
   datacenter     = var.datacenter
   datastores     = var.datastores
@@ -71,7 +71,7 @@ module "control_plane_vm" {
 
 module "worker_vm" {
   source  = "ilpozzd/vsphere-vm/talos"
-  version = "1.1.1"
+  version = "1.1.2"
 
   datacenter     = var.datacenter
   datastores     = reverse(var.datastores)
